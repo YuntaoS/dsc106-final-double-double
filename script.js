@@ -49,43 +49,6 @@ const explanations = {
 };
 
 
-// =============== Win Probability Model (First 10 Minutes) =================
-// 你在 Python 里训练出的 logistic 回归系数：
-// intercept_ [-0.39750995]
-// coef_ [[ 1.00495136 -0.06700415  0.79456393]]
-// 特征顺序：gold10k, killsDiff10, firstDragon
-
-const B0 = -0.39750995;   // 截距
-const B1 =  1.00495136;   // gold10k (golddiffat10 / 1000)
-const B2 = -0.06700415;   // killsDiff10
-const B3 =  0.79456393;   // firstDragon (1 if your team, else 0)
-
-function logistic(z) {
-  return 1 / (1 + Math.exp(-z));
-}
-
-/**
- * inputs: { gold10, killsDiff10, firstDragon }
- * gold10: 以 gold 为单位（-5000 ~ 5000）
- * killsDiff10: 杀人数差（your team − enemy）
- * firstDragon: 0 / 1
- */
-function predictWinProb(inputs) {
-  const gold10k = inputs.gold10 / 1000.0;
-  const killsDiff10 = inputs.killsDiff10;
-  const firstDragon = inputs.firstDragon;
-
-  const z =
-    B0 +
-    B1 * gold10k +
-    B2 * killsDiff10 +
-    B3 * firstDragon;
-
-  return logistic(z);   // 返回 0~1 的概率
-}
-
-
-
 // =============== SVG setup =================
 const margin = { top: 30, right: 20, bottom: 60, left: 60 };
 const width = 760;
@@ -144,6 +107,31 @@ const baselineLabel = chartG
   .style("font-size", "11px");
 
 let globalData = [];
+
+// =============== Win Probability Model (First 10 Minutes) =================
+const B0 = -0.39750995;   // intercept
+const B1 =  1.00495136;   // gold10k (golddiffat10 / 1000)
+const B2 = -0.06700415;   // killsDiff10
+const B3 =  0.79456393;   // firstDragon (1 if your team, else 0)
+
+function logistic(z) {
+  return 1 / (1 + Math.exp(-z));
+}
+
+// Predict win probability given inputs
+function predictWinProb(inputs) {
+  const gold10k = inputs.gold10 / 1000.0;
+  const killsDiff10 = inputs.killsDiff10;
+  const firstDragon = inputs.firstDragon;
+
+  const z =
+    B0 +
+    B1 * gold10k +
+    B2 * killsDiff10 +
+    B3 * firstDragon;
+
+  return logistic(z);
+}
 
 // Load data
 d3.csv("lol_team_clean.csv", d3.autoType).then((data) => {
@@ -434,7 +422,7 @@ function getFirstDragonValue() {
 }
 
 function updateSim() {
-  // 防御性判断：如果当前页面没有这些元素就直接返回
+  // sanity check
   if (!goldSlider || !killsSlider || !probEl) {
     return;
   }
@@ -443,7 +431,7 @@ function updateSim() {
   const killsDiff10 = Number(killsSlider.value);
   const firstDragon = getFirstDragonValue();
 
-  // 更新文本显示
+  // update display
   goldValueSpan.textContent = gold10;
   killsValueSpan.textContent = killsDiff10;
 
@@ -451,7 +439,7 @@ function updateSim() {
   const pct = Math.round(p * 100);
   probEl.textContent = pct + "%";
 
-  // 简单的解释文案
+  // caption
   let text;
   if (pct < 40) {
     text =
@@ -466,7 +454,7 @@ function updateSim() {
   captionEl.textContent = text;
 }
 
-// 监听滑条和单选按钮
+// event listeners
 if (goldSlider && killsSlider) {
   goldSlider.addEventListener("input", updateSim);
   killsSlider.addEventListener("input", updateSim);
@@ -477,6 +465,5 @@ if (goldSlider && killsSlider) {
       radio.addEventListener("change", updateSim);
     });
 
-  // 页面加载后初始化一次
   updateSim();
 }

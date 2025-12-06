@@ -23,17 +23,34 @@ const explanations = {
     desc: `Securing Baron Nashor is one of the most decisive turning points in professional play.
            The Baron buff dramatically enhances siege potential and map control,
            often enabling teams to convert their advantage into a game-winning push.`
+  },
+
+  towers: {
+    title: "Figure — Tower Control vs Win Rate",
+    desc: `Towers are permanent map objectives that open pathways and increase map pressure.
+          Teams that secure more towers consistently gain greater control of rotations,
+          enabling safer vision, deeper jungle access, and a higher chance of winning.`
+  },
+
+  kills: {
+    title: "Figure — Early Kill Difference vs Win Rate",
+    desc: `Early kill leads often translate into more gold, lane pressure, and objective control.
+          Teams with higher kill advantage at 10 minutes tend to snowball their tempo advantages
+          into higher mid-game win rates.`
+  },
+
+  vision: {
+    title: "Figure — Vision Score vs Win Rate",
+    desc: `Vision Score reflects a team’s control over fog of war. Higher vision enables safer
+          objective setups, ambush prevention, and better macro decisions—strongly contributing
+          to higher win rates in coordinated play.`
   }
+
 };
 
 
 // =============== Win Probability Model (First 10 Minutes) =================
-// 你在 Python 里训练出的 logistic 回归系数：
-// intercept_ [-0.39750995]
-// coef_ [[ 1.00495136 -0.06700415  0.79456393]]
-// 特征顺序：gold10k, killsDiff10, firstDragon
-
-const B0 = -0.39750995;   // 截距
+const B0 = -0.39750995;   // intercept
 const B1 =  1.00495136;   // gold10k (golddiffat10 / 1000)
 const B2 = -0.06700415;   // killsDiff10
 const B3 =  0.79456393;   // firstDragon (1 if your team, else 0)
@@ -42,12 +59,7 @@ function logistic(z) {
   return 1 / (1 + Math.exp(-z));
 }
 
-/**
- * inputs: { gold10, killsDiff10, firstDragon }
- * gold10: 以 gold 为单位（-5000 ~ 5000）
- * killsDiff10: 杀人数差（your team − enemy）
- * firstDragon: 0 / 1
- */
+// Predict win probability given inputs
 function predictWinProb(inputs) {
   const gold10k = inputs.gold10 / 1000.0;
   const killsDiff10 = inputs.killsDiff10;
@@ -59,7 +71,7 @@ function predictWinProb(inputs) {
     B2 * killsDiff10 +
     B3 * firstDragon;
 
-  return logistic(z);   // 返回 0~1 的概率
+  return logistic(z);
 }
 
 
@@ -75,8 +87,8 @@ const chartHeight = height - margin.top - margin.bottom;
 const svg = d3
   .select("#chart")
   .append("svg")
-  .attr("width", width)
-  .attr("height", height);
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet");
 
 const chartG = svg
   .append("g")
@@ -108,19 +120,6 @@ svg
   .style("font-size", "11px")
   .text("Win Rate");
 
-const baselineLine = chartG
-  .append("line")
-  .attr("class", "baseline")
-  .attr("stroke", "#6b7280")
-  .attr("stroke-dasharray", "4 3");
-
-const baselineLabel = chartG
-  .append("text")
-  .attr("class", "baseline-label")
-  .attr("text-anchor", "end")
-  .attr("fill", "#9ca3af")
-  .style("font-size", "11px");
-
 let globalData = [];
 
 // Load data
@@ -132,7 +131,8 @@ d3.csv("lol_team_clean.csv", d3.autoType).then((data) => {
 
   yAxisG.call(
     d3.axisLeft(y)
-      .ticks(5)
+      .ticks(10)
+      .tickSize(-chartWidth)
       .tickFormat((d) => d3.format(".0%")(d))
   );
 });
@@ -183,6 +183,63 @@ function computeDragonStats(data) {
   })).sort((a, b) => +a.label - +b.label);
 }
 
+// ======== TOWER STATS ========
+function computeTowerStats(data) {
+  const rolled = d3.rollup(
+    data,
+    v => ({
+      winrate: d3.mean(v, d => d.win),
+      count: v.length
+    }),
+    d => d.towers  // team towers taken
+  );
+
+  return Array.from(rolled, ([towers, obj]) => ({
+    label: towers.toString(),
+    winrate: obj.winrate ?? 0,
+    count: obj.count
+  })).sort((a, b) => +a.label - +b.label);
+}
+
+
+// ======== KILL DIFFERENCE STATS ========
+function computeKillStats(data) {
+  const rolled = d3.rollup(
+    data,
+    v => ({
+      winrate: d3.mean(v, d => d.win),
+      count: v.length
+    }),
+    d => d.kills_diff_10   // kill diff at 10 minutes
+  );
+
+  return Array.from(rolled, ([killDiff, obj]) => ({
+    label: killDiff.toString(),
+    winrate: obj.winrate ?? 0,
+    count: obj.count
+  })).sort((a, b) => +a.label - +b.label);
+}
+
+
+// ======== VISION SCORE STATS ========
+function computeVisionStats(data) {
+  const rolled = d3.rollup(
+    data,
+    v => ({
+      winrate: d3.mean(v, d => d.win),
+      count: v.length
+    }),
+    d => Math.round(d.visionscore / 50) * 50   // group by 50 for readability
+  );
+
+  return Array.from(rolled, ([vs, obj]) => ({
+    label: vs.toString(),
+    winrate: obj.winrate ?? 0,
+    count: obj.count
+  })).sort((a, b) => +a.label - +b.label);
+}
+
+
 // baron stats
 function computeBaronStats(data) {
   const rolled = d3.rollup(
@@ -210,21 +267,8 @@ function drawBarChart(stats, metric) {
 
   xAxisG
     .selectAll("text")
-    .attr("transform", metric === "gold" ? "rotate(25)" : null)
+    .attr("transform", metric === "gold" ? "rotate(30)" : null)
     .style("text-anchor", metric === "gold" ? "start" : "middle");
-
-  const overallWin = d3.mean(globalData, (d) => d.win);
-
-  baselineLine
-    .attr("x1", 0)
-    .attr("x2", chartWidth)
-    .attr("y1", y(overallWin))
-    .attr("y2", y(overallWin));
-
-  baselineLabel
-    .attr("x", chartWidth - 4)
-    .attr("y", y(overallWin) - 6)
-    .text(`Overall ≈ ${d3.format(".0%")(overallWin)}`);
 
   const bars = chartG.selectAll("rect.bar").data(stats, (d) => d.label);
 
@@ -307,11 +351,23 @@ function updateMetric(metric) {
   let stats;
   if (metric === "gold") {
     stats = computeGoldStats(globalData);
-  } else if (metric === "dragon") {
+  }
+  else if (metric === "dragon") {
     stats = computeDragonStats(globalData);
-  } else if (metric === "baron") {
+  }
+  else if (metric === "baron") {
     stats = computeBaronStats(globalData);
-  } else {
+  }
+  else if (metric === "towers") {
+    stats = computeTowerStats(globalData);
+  }
+  else if (metric === "kills") {
+    stats = computeKillStats(globalData);
+  }
+  else if (metric === "vision") {
+    stats = computeVisionStats(globalData);
+  }
+  else {
     console.warn(`Unknown metric: ${metric}`);
     return;
   }
@@ -343,7 +399,7 @@ function getFirstDragonValue() {
 }
 
 function updateSim() {
-  // 防御性判断：如果当前页面没有这些元素就直接返回
+  // sanity check
   if (!goldSlider || !killsSlider || !probEl) {
     return;
   }
@@ -352,7 +408,7 @@ function updateSim() {
   const killsDiff10 = Number(killsSlider.value);
   const firstDragon = getFirstDragonValue();
 
-  // 更新文本显示
+  // update display
   goldValueSpan.textContent = gold10;
   killsValueSpan.textContent = killsDiff10;
 
@@ -360,7 +416,7 @@ function updateSim() {
   const pct = Math.round(p * 100);
   probEl.textContent = pct + "%";
 
-  // 简单的解释文案
+  // caption
   let text;
   if (pct < 40) {
     text =
@@ -375,7 +431,7 @@ function updateSim() {
   captionEl.textContent = text;
 }
 
-// 监听滑条和单选按钮
+// event listeners
 if (goldSlider && killsSlider) {
   goldSlider.addEventListener("input", updateSim);
   killsSlider.addEventListener("input", updateSim);
@@ -386,6 +442,5 @@ if (goldSlider && killsSlider) {
       radio.addEventListener("change", updateSim);
     });
 
-  // 页面加载后初始化一次
   updateSim();
 }

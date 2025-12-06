@@ -2,8 +2,28 @@
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 40px;
-  background-color: #0b0b12;
+  background: radial-gradient(circle at 50% 20%, #1f2638, #0a0c14 80%);
   color: #f5f5f5;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(5, 8, 20, 0.60) 35%,
+      rgba(5, 8, 20, 0.40) 60%,
+      rgba(5, 8, 20, 0.25)
+    ),
+    url("assets/background.png") center right / cover no-repeat;
+
+  opacity: 0.6;
+  z-index: -1;
+  pointer-events: none;
 }
 
 h1 {
@@ -369,4 +389,35 @@ a {
   max-width: 1000px;
   margin: 0 auto;
   text-align: center;
+}
+
+.site-footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 60px;
+  padding: 20px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.site-footer a {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: underline;
+}
+
+.site-footer a:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+.lol-header {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.lol-logo {
+  width: 220px; 
+  margin-bottom: 10px;
+  opacity: 0.95;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45));
 }

@@ -12,7 +12,11 @@
 
 <body>
   <div class="content-center">
-    <h2>What Determines Victory in League of Legends?</h2>
+    <div class="lol-header">
+      <img src="assets/lol-logo.svg" alt="League of Legends Logo" class="lol-logo">
+      <h1>What Determines Victory in League of Legends?</h1>
+    </div>
+
     <p>
       This prototype explores how early-game gold advantage at 10 minutes relates to win rate
       in professional League of Legends matches. Below is our first interactive visualization
@@ -20,7 +24,6 @@
     </p>
   </div>
 
-  <!-- 上面：地图独立一行 -->
   <section id="map-filters">
     <h2>Explore Early-Game Advantages on the Rift</h2>
     <p class="map-caption">
@@ -147,6 +150,12 @@
       </div>
     </div>
   </section>
+
+  <footer class="site-footer">
+    <p>DSC 106 — Final Project • Data sourced from 
+      <a href="https://oracleselixir.com/tools/downloads" target="_blank">Oracle’s Elixir</a>
+    </p>
+  </footer>
 
   <!-- D3 code -->
   <script src="script.js"></script>

@@ -1,6 +1,34 @@
-// script.js
+// =============== Chart Setup =================
+const chartContainer = document.getElementById("chart-container");
+const titleEl = document.getElementById("chart-title");
+const descEl = document.getElementById("chart-desc");
 
-// setup dimensions
+
+const explanations = {
+  gold: {
+    title: "Figure — 10-Minute Gold Difference vs Win Rate",
+    desc: `The gold difference between teams at the 10-minute mark is a powerful predictor of victory.
+           Once a team is ahead by more than +1k gold, its chance of winning rises sharply,
+           indicating how decisive early tempo advantages are in professional play.`
+  },
+
+  dragon: {
+    title: "Figure — Dragon Control vs Win Rate",
+    desc: `Dragon control plays a critical role in shaping mid-to-late-game outcomes.
+           Each dragon secured provides stacking buffs that strengthen a team's skirmishing and objective power,
+           leading to a steadily increasing likelihood of winning the match.`
+  },
+
+  baron: {
+    title: "Figure — Baron Control vs Win Rate",
+    desc: `Securing Baron Nashor is one of the most decisive turning points in professional play.
+           The Baron buff dramatically enhances siege potential and map control,
+           often enabling teams to convert their advantage into a game-winning push.`
+  }
+};
+
+
+// SVG setup
 const margin = { top: 30, right: 20, bottom: 60, left: 60 };
 const width = 760;
 const height = 360;
@@ -8,7 +36,6 @@ const height = 360;
 const chartWidth = width - margin.left - margin.right;
 const chartHeight = height - margin.top - margin.bottom;
 
-//SVG & group
 const svg = d3
   .select("#chart")
   .append("svg")
@@ -58,10 +85,9 @@ const baselineLabel = chartG
   .attr("fill", "#9ca3af")
   .style("font-size", "11px");
 
-// Global data variable
 let globalData = [];
 
-// Load data and initialize chart
+// Load data
 d3.csv("lol_team_clean.csv", d3.autoType).then((data) => {
   globalData = data;
 
@@ -74,10 +100,9 @@ d3.csv("lol_team_clean.csv", d3.autoType).then((data) => {
       .tickFormat((d) => d3.format(".0%")(d))
   );
 
-  updateMetric("gold");
 });
 
-// compute gold stats
+// gold bins
 const goldBins = [
   { label: "< -3000", min: -9999, max: -3000 },
   { label: "-3000 ~ -2000", min: -3000, max: -2000 },
@@ -89,7 +114,7 @@ const goldBins = [
   { label: "> 3000", min: 3000, max: 9999 }
 ];
 
-// compute gold stats
+// compute stats
 function computeGoldStats(data) {
   return goldBins.map((bin) => {
     const subset = data.filter(
@@ -104,29 +129,26 @@ function computeGoldStats(data) {
   });
 }
 
-// compute dragon stats
+// dragon stats
 function computeDragonStats(data) {
-  const filtered = data.filter(d => d.dragons != null);
+  const filtered = data.filter((d) => d.dragons != null);
   const rolled = d3.rollup(
     filtered,
-    v => ({
-      winrate: d3.mean(v, d => d.win),
+    (v) => ({
+      winrate: d3.mean(v, (d) => d.win),
       count: v.length
     }),
-    d => Number(d.dragons)
+    (d) => Number(d.dragons)
   );
 
-  const stats = Array.from(rolled, ([dragons, obj]) => ({
+  return Array.from(rolled, ([dragons, obj]) => ({
     label: dragons.toString(),
     winrate: obj.winrate ?? 0,
     count: obj.count
   })).sort((a, b) => +a.label - +b.label);
-
-  return stats;
 }
 
-
-// compute baron stats
+// baron stats
 function computeBaronStats(data) {
   const rolled = d3.rollup(
     data,
@@ -151,7 +173,6 @@ function drawBarChart(stats, metric) {
   const xAxis = d3.axisBottom(x);
   xAxisG.call(xAxis);
 
-  // Adjust x-axis label orientation based on metric
   xAxisG
     .selectAll("text")
     .attr("transform", metric === "gold" ? "rotate(25)" : null)
@@ -170,7 +191,6 @@ function drawBarChart(stats, metric) {
     .attr("y", y(overallWin) - 6)
     .text(`Overall ≈ ${d3.format(".0%")(overallWin)}`);
 
-  // Data join for bars
   const bars = chartG.selectAll("rect.bar").data(stats, (d) => d.label);
 
   bars
@@ -234,13 +254,20 @@ function drawBarChart(stats, metric) {
     });
 }
 
+
 // update metric
 function updateMetric(metric) {
+  if (!globalData.length) return;
+  chartContainer.style.display = "block";
+
   document.querySelectorAll(".map-icon").forEach((b) => {
     b.classList.toggle("active", b.dataset.metric === metric);
   });
 
-  if (!globalData.length) return;
+  if (explanations[metric]) {
+    titleEl.textContent = explanations[metric].title;
+    descEl.textContent = explanations[metric].desc;
+  }
 
   let stats;
   if (metric === "gold") {
@@ -257,7 +284,7 @@ function updateMetric(metric) {
   drawBarChart(stats, metric);
 }
 
-// button event listeners
+// Event listeners for buttons
 document.querySelectorAll(".map-icon").forEach((btn) => {
   btn.addEventListener("click", () => {
     updateMetric(btn.dataset.metric);

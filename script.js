@@ -23,29 +23,7 @@ const explanations = {
     desc: `Securing Baron Nashor is one of the most decisive turning points in professional play.
            The Baron buff dramatically enhances siege potential and map control,
            often enabling teams to convert their advantage into a game-winning push.`
-  },
-
-  towers: {
-    title: "Figure — Tower Control vs Win Rate",
-    desc: `Towers are permanent map objectives that open pathways and increase map pressure.
-          Teams that secure more towers consistently gain greater control of rotations,
-          enabling safer vision, deeper jungle access, and a higher chance of winning.`
-  },
-
-  kills: {
-    title: "Figure — Early Kill Difference vs Win Rate",
-    desc: `Early kill leads often translate into more gold, lane pressure, and objective control.
-          Teams with higher kill advantage at 10 minutes tend to snowball their tempo advantages
-          into higher mid-game win rates.`
-  },
-
-  vision: {
-    title: "Figure — Vision Score vs Win Rate",
-    desc: `Vision Score reflects a team’s control over fog of war. Higher vision enables safer
-          objective setups, ambush prevention, and better macro decisions—strongly contributing
-          to higher win rates in coordinated play.`
   }
-
 };
 
 
@@ -205,63 +183,6 @@ function computeDragonStats(data) {
   })).sort((a, b) => +a.label - +b.label);
 }
 
-// ======== TOWER STATS ========
-function computeTowerStats(data) {
-  const rolled = d3.rollup(
-    data,
-    v => ({
-      winrate: d3.mean(v, d => d.win),
-      count: v.length
-    }),
-    d => d.towers  // team towers taken
-  );
-
-  return Array.from(rolled, ([towers, obj]) => ({
-    label: towers.toString(),
-    winrate: obj.winrate ?? 0,
-    count: obj.count
-  })).sort((a, b) => +a.label - +b.label);
-}
-
-
-// ======== KILL DIFFERENCE STATS ========
-function computeKillStats(data) {
-  const rolled = d3.rollup(
-    data,
-    v => ({
-      winrate: d3.mean(v, d => d.win),
-      count: v.length
-    }),
-    d => d.kills_diff_10   // kill diff at 10 minutes
-  );
-
-  return Array.from(rolled, ([killDiff, obj]) => ({
-    label: killDiff.toString(),
-    winrate: obj.winrate ?? 0,
-    count: obj.count
-  })).sort((a, b) => +a.label - +b.label);
-}
-
-
-// ======== VISION SCORE STATS ========
-function computeVisionStats(data) {
-  const rolled = d3.rollup(
-    data,
-    v => ({
-      winrate: d3.mean(v, d => d.win),
-      count: v.length
-    }),
-    d => Math.round(d.visionscore / 50) * 50   // group by 50 for readability
-  );
-
-  return Array.from(rolled, ([vs, obj]) => ({
-    label: vs.toString(),
-    winrate: obj.winrate ?? 0,
-    count: obj.count
-  })).sort((a, b) => +a.label - +b.label);
-}
-
-
 // baron stats
 function computeBaronStats(data) {
   const rolled = d3.rollup(
@@ -386,23 +307,11 @@ function updateMetric(metric) {
   let stats;
   if (metric === "gold") {
     stats = computeGoldStats(globalData);
-  }
-  else if (metric === "dragon") {
+  } else if (metric === "dragon") {
     stats = computeDragonStats(globalData);
-  }
-  else if (metric === "baron") {
+  } else if (metric === "baron") {
     stats = computeBaronStats(globalData);
-  }
-  else if (metric === "towers") {
-    stats = computeTowerStats(globalData);
-  }
-  else if (metric === "kills") {
-    stats = computeKillStats(globalData);
-  }
-  else if (metric === "vision") {
-    stats = computeVisionStats(globalData);
-  }
-  else {
+  } else {
     console.warn(`Unknown metric: ${metric}`);
     return;
   }

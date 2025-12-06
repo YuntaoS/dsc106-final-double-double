@@ -63,33 +63,11 @@ a {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-#map-filters h2 {
-  margin-top: 0.5rem;
-  margin-bottom: 0.3rem;
-}
-
 .map-caption {
   color: #9ca3af;
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }
-
-.map-legend {
-  margin-top: 0.75rem;
-  text-align: center;
-  font-size: 0.85rem;
-  color: #9ca3af;
-  letter-spacing: 0.02em;
-  font-weight: 700;
-}
-
-.lg-g { color: #facc15; }
-.lg-d { color: #60a5fa; }
-.lg-b { color: #c4b5fd; }
-.lg-t { color: #f87171; }
-.lg-k { color: #34d399; }
-.lg-v { color: #a78bfa; }
-
 
 .sr-map {
   position: relative;
@@ -102,6 +80,22 @@ a {
   border-radius: 1rem;
   opacity: 0.9;
 }
+
+/* gold icon */
+.icon-gold {
+  background-image: url("assets/icons/gold.png");
+}
+
+/* dragon icon */
+.icon-dragon {
+  background-image: url("assets/icons/dragon.png");
+}
+
+/* baron icon */
+.icon-baron {
+  background-image: url("assets/icons/baron.png");
+}
+
 
 /* ====== LoL Map Beams + Floating Letters ====== */
 .map-icon {
@@ -153,30 +147,6 @@ a {
   );
 }
 
-.icon-tower::before {
-  background: linear-gradient(
-    to top,
-    rgba(248, 250, 252, 0.9),
-    rgba(248, 250, 252, 0.0)
-  );
-}
-
-.icon-kills::before {
-  background: linear-gradient(
-    to top,
-    rgba(239, 68, 68, 0.9),
-    rgba(239, 68, 68, 0.0)
-  );
-}
-
-.icon-vision::before {
-  background: linear-gradient(
-    to top,
-    rgba(52, 211, 153, 0.9),
-    rgba(52, 211, 153, 0.0)
-  );
-}
-
 .map-icon::after {
   position: absolute;
   left: 50%;
@@ -215,33 +185,6 @@ a {
     0 0 16px rgba(196, 181, 253, 0.8);
 }
 
-/* Tower */
-.icon-tower::after {
-  content: "T";
-  color: #ffffff;
-  text-shadow:
-    0 0 6px rgba(248, 250, 252, 0.95),
-    0 0 16px rgba(248, 250, 252, 0.8);
-}
-
-/* Kills */
-.icon-kills::after {
-  content: "K";
-  color: #ffffff;
-  text-shadow:
-    0 0 6px rgba(239, 68, 68, 0.95),
-    0 0 16px rgba(239, 68, 68, 0.8);
-}
-
-/* Vision */
-.icon-vision::after {
-  content: "V";
-  color: #ffffff;
-  text-shadow:
-    0 0 6px rgba(52, 211, 153, 0.95),
-    0 0 16px rgba(52, 211, 153, 0.8);
-}
-
 .map-icon:hover::after,
 .map-icon.active::after {
   animation: floatLetter 0.6s ease-out forwards;
@@ -267,10 +210,6 @@ a {
 .icon-gold { left: 50%; top: 47%; }
 .icon-dragon { left: 64%; top: 65%; }
 .icon-baron { left: 38%; top: 29%; }
-.icon-tower { left: 70%; top: 23%; }
-.icon-kills { left: 31%; top: 68%; }
-.icon-vision { left: 50%; top: 70%; }
-
 
 
 /* ======= Main two-column layout for map + simulator ======= */

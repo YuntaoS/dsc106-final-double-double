@@ -19,16 +19,13 @@
     based on team-level data aggregated from Oracle’s Elixir.
   </p>
 
-  <!-- 新加：左右两栏布局容器 -->
-  <section id="main-layout">
-    <!-- 左侧：地图 + 图表（用你原来的结构） -->
-    <div class="left-panel">
-      <section id="map-filters">
-        <h2>Explore by Objective</h2>
-        <p class="map-caption">
-          Click an icon on the map to switch which metric the chart shows.
-        </p>
+  <section id="map-filters">
+    <h2>Explore by Objective</h2>
+    <p class="map-caption">
+      Click an icon on the map to switch which metric the chart shows.
+    </p>
 
+<<<<<<< HEAD
         <div class="sr-map">
           <img src="assets/map.png" alt="Summoner's Rift map">
           <button class="map-icon icon-gold active" data-metric="gold" aria-label="Gold Difference">
@@ -76,6 +73,29 @@
           The model is a logistic regression trained on professional matches from Oracle’s Elixir.
         </p>
 >>>>>>> parent of 980a4f7 (Merge pull request #4 from Marcushi66/main)
+
+
+=======
+    <div class="sr-map">
+      <img src="assets/map.png" alt="Summoner's Rift map">
+      <button class="map-icon icon-gold active" data-metric="gold" aria-label="Gold Difference">
+        G
+      </button>
+      <button class="map-icon icon-dragon" data-metric="dragon" aria-label="Dragons">
+        D
+      </button>
+      <button class="map-icon icon-baron" data-metric="baron" aria-label="Baron">
+        B
+      </button>
+    </div>
+  </section>
+>>>>>>> parent of e31b4c2 (模拟器更改添加。)
+
+  <div id="chart-container" style="display: none; margin-top: 40px;">
+    <h2 id="chart-title" style="margin-bottom: 8px;"></h2>
+    <p id="chart-desc" style="max-width: 640px; margin-bottom: 24px;"></p>
+    <div id="chart"></div>
+  </div>
 
 
 

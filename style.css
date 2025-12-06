@@ -408,3 +408,16 @@ a {
 .site-footer a:hover {
   color: rgba(255, 255, 255, 1);
 }
+
+.lol-header {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.lol-logo {
+  width: 220px; 
+  margin-bottom: 10px;
+  opacity: 0.95;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45));
+}

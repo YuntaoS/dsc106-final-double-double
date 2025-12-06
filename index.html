@@ -19,33 +19,121 @@
     based on team-level data aggregated from Oracle’s Elixir.
   </p>
 
-  <section id="map-filters">
-    <h2>Explore by Objective</h2>
-    <p class="map-caption">
-      Click an icon on the map to switch which metric the chart shows.
-    </p>
+  <!-- 新加：左右两栏布局容器 -->
+  <section id="main-layout">
+    <!-- 左侧：地图 + 图表（用你原来的结构） -->
+    <div class="left-panel">
+      <section id="map-filters">
+        <h2>Explore by Objective</h2>
+        <p class="map-caption">
+          Click an icon on the map to switch which metric the chart shows.
+        </p>
 
-    <div class="sr-map">
-      <img src="assets/map.png" alt="Summoner's Rift map">
-      <button class="map-icon icon-gold active" data-metric="gold" aria-label="Gold Difference">
-        G
-      </button>
-      <button class="map-icon icon-dragon" data-metric="dragon" aria-label="Dragons">
-        D
-      </button>
-      <button class="map-icon icon-baron" data-metric="baron" aria-label="Baron">
-        B
-      </button>
+        <div class="sr-map">
+          <img src="assets/map.png" alt="Summoner's Rift map">
+          <button class="map-icon icon-gold active" data-metric="gold" aria-label="Gold Difference">
+            G
+          </button>
+          <button class="map-icon icon-dragon" data-metric="dragon" aria-label="Dragons">
+            D
+          </button>
+          <button class="map-icon icon-baron" data-metric="baron" aria-label="Baron">
+            B
+          </button>
+        </div>
+      </section>
+
+      <div id="chart-container" style="display: none; margin-top: 40px;">
+        <h2 id="chart-title" style="margin-bottom: 8px;"></h2>
+        <p id="chart-desc" style="max-width: 640px; margin-bottom: 24px;"></p>
+        <div id="chart"></div>
+      </div>
+    </div>
+
+    <!-- 右侧：胜率模拟器（Win Probability Simulator） -->
+    <div class="right-panel">
+      <section id="win-sim">
+        <h2>Win Probability Simulator (First 10 Minutes)</h2>
+        <p class="sim-intro">
+          Adjust the early-game situation at 10 minutes and see how the predicted win probability changes.
+          The model is a logistic regression trained on professional matches from Oracle’s Elixir.
+        </p>
+
+        <div class="sim-grid">
+          <div class="sim-controls">
+            <!-- Gold diff slider -->
+            <div class="sim-control">
+              <label for="sim-gold">
+                Gold difference at 10 min (your team − enemy)
+              </label>
+              <div class="sim-input-row">
+                <input
+                  type="range"
+                  id="sim-gold"
+                  min="-5000"
+                  max="5000"
+                  step="500"
+                  value="0"
+                />
+                <span id="sim-gold-value">0</span> gold
+              </div>
+            </div>
+
+            <!-- Kills diff slider -->
+            <div class="sim-control">
+              <label for="sim-kills">
+                Kill difference at 10 min (your team − enemy)
+              </label>
+              <div class="sim-input-row">
+                <input
+                  type="range"
+                  id="sim-kills"
+                  min="-10"
+                  max="10"
+                  step="1"
+                  value="0"
+                />
+                <span id="sim-kills-value">0</span> kills
+              </div>
+            </div>
+
+            <!-- First dragon radio -->
+            <div class="sim-control">
+              <span class="sim-label">First dragon</span>
+              <div class="sim-radio-group">
+                <label>
+                  <input
+                    type="radio"
+                    name="sim-firstdragon"
+                    value="1"
+                    checked
+                  />
+                  Your team secured first dragon
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="sim-firstdragon"
+                    value="0"
+                  />
+                  Enemy / no dragon yet
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右边显示胜率数字 -->
+          <div class="sim-output">
+            <p class="sim-output-label">Predicted win probability</p>
+            <p id="sim-prob" class="sim-prob-value">--%</p>
+            <p id="sim-caption" class="sim-caption">
+              Set the sliders to reflect the position at 10 minutes.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   </section>
-
-  <div id="chart-container" style="display: none; margin-top: 40px;">
-    <h2 id="chart-title" style="margin-bottom: 8px;"></h2>
-    <p id="chart-desc" style="max-width: 640px; margin-bottom: 24px;"></p>
-    <div id="chart"></div>
-  </div>
-
-
 
   <h2>What have you done so far?</h2>
   <p style="max-width: 800px;">

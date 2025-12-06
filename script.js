@@ -3,7 +3,6 @@ const chartContainer = document.getElementById("chart-container");
 const titleEl = document.getElementById("chart-title");
 const descEl = document.getElementById("chart-desc");
 
-
 const explanations = {
   gold: {
     title: "Figure — 10-Minute Gold Difference vs Win Rate",
@@ -28,7 +27,44 @@ const explanations = {
 };
 
 
-// SVG setup
+// =============== Win Probability Model (First 10 Minutes) =================
+// 你在 Python 里训练出的 logistic 回归系数：
+// intercept_ [-0.39750995]
+// coef_ [[ 1.00495136 -0.06700415  0.79456393]]
+// 特征顺序：gold10k, killsDiff10, firstDragon
+
+const B0 = -0.39750995;   // 截距
+const B1 =  1.00495136;   // gold10k (golddiffat10 / 1000)
+const B2 = -0.06700415;   // killsDiff10
+const B3 =  0.79456393;   // firstDragon (1 if your team, else 0)
+
+function logistic(z) {
+  return 1 / (1 + Math.exp(-z));
+}
+
+/**
+ * inputs: { gold10, killsDiff10, firstDragon }
+ * gold10: 以 gold 为单位（-5000 ~ 5000）
+ * killsDiff10: 杀人数差（your team − enemy）
+ * firstDragon: 0 / 1
+ */
+function predictWinProb(inputs) {
+  const gold10k = inputs.gold10 / 1000.0;
+  const killsDiff10 = inputs.killsDiff10;
+  const firstDragon = inputs.firstDragon;
+
+  const z =
+    B0 +
+    B1 * gold10k +
+    B2 * killsDiff10 +
+    B3 * firstDragon;
+
+  return logistic(z);   // 返回 0~1 的概率
+}
+
+
+
+// =============== SVG setup =================
 const margin = { top: 30, right: 20, bottom: 60, left: 60 };
 const width = 760;
 const height = 360;
@@ -99,7 +135,6 @@ d3.csv("lol_team_clean.csv", d3.autoType).then((data) => {
       .ticks(5)
       .tickFormat((d) => d3.format(".0%")(d))
   );
-
 });
 
 // gold bins
@@ -284,9 +319,73 @@ function updateMetric(metric) {
   drawBarChart(stats, metric);
 }
 
-// Event listeners for buttons
+// Event listeners for map buttons
 document.querySelectorAll(".map-icon").forEach((btn) => {
   btn.addEventListener("click", () => {
     updateMetric(btn.dataset.metric);
   });
 });
+
+
+// =============== Win Probability Simulator Wiring =================
+const goldSlider = document.getElementById("sim-gold");
+const goldValueSpan = document.getElementById("sim-gold-value");
+
+const killsSlider = document.getElementById("sim-kills");
+const killsValueSpan = document.getElementById("sim-kills-value");
+
+const probEl = document.getElementById("sim-prob");
+const captionEl = document.getElementById("sim-caption");
+
+function getFirstDragonValue() {
+  const checked = document.querySelector('input[name="sim-firstdragon"]:checked');
+  return checked ? Number(checked.value) : 0;
+}
+
+function updateSim() {
+  // 防御性判断：如果当前页面没有这些元素就直接返回
+  if (!goldSlider || !killsSlider || !probEl) {
+    return;
+  }
+
+  const gold10 = Number(goldSlider.value);
+  const killsDiff10 = Number(killsSlider.value);
+  const firstDragon = getFirstDragonValue();
+
+  // 更新文本显示
+  goldValueSpan.textContent = gold10;
+  killsValueSpan.textContent = killsDiff10;
+
+  const p = predictWinProb({ gold10, killsDiff10, firstDragon });
+  const pct = Math.round(p * 100);
+  probEl.textContent = pct + "%";
+
+  // 简单的解释文案
+  let text;
+  if (pct < 40) {
+    text =
+      "Your team is statistically behind based on the first 10 minutes, but comebacks are still possible.";
+  } else if (pct <= 60) {
+    text =
+      "The game is relatively even at 10 minutes. Small decisions and teamfights can swing the outcome.";
+  } else {
+    text =
+      "Your team has a strong early lead. Historically, teams in this position convert their advantage into a win.";
+  }
+  captionEl.textContent = text;
+}
+
+// 监听滑条和单选按钮
+if (goldSlider && killsSlider) {
+  goldSlider.addEventListener("input", updateSim);
+  killsSlider.addEventListener("input", updateSim);
+
+  document
+    .querySelectorAll('input[name="sim-firstdragon"]')
+    .forEach((radio) => {
+      radio.addEventListener("change", updateSim);
+    });
+
+  // 页面加载后初始化一次
+  updateSim();
+}

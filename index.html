@@ -11,6 +11,12 @@
 </head>
 
 <body>
+  <header class="course-banner">
+    <span class="course-code">DSC 106</span>
+    <span class="course-divider">·</span>
+    <span class="course-label">Final Project – Explorable Explanation</span>
+  </header>
+
   <div class="content-center">
     <div class="lol-header">
       <img src="assets/lol-logo.svg" alt="League of Legends Logo" class="lol-logo">
@@ -18,11 +24,43 @@
     </div>
 
     <p>
-      This prototype explores how early-game gold advantage at 10 minutes relates to win rate
-      in professional League of Legends matches. Below is our first interactive visualization
-      based on team-level data aggregated from Oracle’s Elixir.
-    </p>
+      In pro League of Legends, people love to say things like
+      <strong>"first blood wins the game"</strong> or
+      <strong>"dragons win championships."</strong>
+      But when one team is 3k gold behind at 10 minutes, is the game really over?
+      This final project is an explorable explanation that lets you interact with thousands of
+      professional matches from Oracle’s Elixir to see how early-game gold and objectives
+      actually relate to win rate.
+</p>
   </div>
+
+  <section id="story-strip" class="story-strip">
+    <div class="story-card">
+      <h3>And — Early Game Hype</h3>
+      <p>
+        In pro League, the first ten minutes are treated as everything. Drafts, jungle paths,
+        and casting all revolve around getting that early lead on the scoreboard.
+      </p>
+    </div>
+
+    <div class="story-card">
+      <h3>But — Data Tells a Messier Story</h3>
+      <p>
+        Across thousands of matches, some teams still lose with huge gold leads, while others
+        win from “lost” positions. A 2k lead with no dragons is not the same as a 2k lead
+        with early objective control.
+      </p>
+    </div>
+
+    <div class="story-card">
+      <h3>Therefore — Let’s Make It Playable</h3>
+      <p>
+        This explorable turns those patterns into something you can play with: click beams on
+        the map and adjust the sliders in the simulator to see how your favorite win
+        conditions actually change win probability.
+      </p>
+    </div>
+  </section>
 
   <section id="map-filters">
     <h2>Explore Early-Game Advantages on the Rift</h2>
@@ -152,6 +190,42 @@
       </div>
     </div>
   </section>
+
+   <section id="conclusion" class="conclusion-section">
+    <h2>Conclusion: What Actually Wins Pro Games?</h2>
+
+    <p>
+      If you remember only one thing from this page, let it be this:
+      <strong>early gold leads are powerful, but they only truly matter when teams convert them into real objectives.</strong>
+      A 2–3k lead at ten minutes looks very different depending on who has dragons, towers, and vision control.
+    </p>
+
+    <ul class="conclusion-list">
+      <li>
+        <strong>Gold opens the door, objectives close it.</strong>
+        The map view and bar chart show that raw gold difference is strongly correlated with win rate,
+        but gold plus early dragons or tower plates pushes that advantage much higher.
+      </li>
+      <li>
+        <strong>Comebacks are real, but not magical.</strong>
+        In the simulator, even teams that are behind can keep non-zero win chances when they trade gold
+        for scaling comps, vision, or early objectives — but there is a point where the curve flattens
+        and “hope” stops being realistic.
+      </li>
+      <li>
+        <strong>Context matters more than a single stat line.</strong>
+        Two games with the same gold diff at ten minutes can have very different outcomes depending on
+        where that lead comes from and how it’s used.
+      </li>
+    </ul>
+
+    <p class="conclusion-note">
+      We chose this visual design so that pro-game concepts map directly onto the data:
+      <strong>the Rift map</strong> anchors win conditions in familiar locations,
+      <strong>the bar chart</strong> reveals the overall patterns across thousands of matches,
+      and <strong>the simulator</strong> lets you plug in your own “ff 15” or “we scale” positions.
+      Together, they turn a logistic regression model into something you can reason about as a player.
+    </p>
 
   <footer class="site-footer">
     <p>DSC 106 — Final Project • Data sourced from 

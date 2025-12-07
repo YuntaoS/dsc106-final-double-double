@@ -460,3 +460,41 @@ a {
   opacity: 0.95;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45));
 }
+
+
+.story-strip {
+  max-width: 1100px;
+  margin: 24px auto 32px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.story-card {
+  padding: 1.1rem 1.25rem;
+  border-radius: 0.9rem;
+  background: radial-gradient(circle at top, #111827, #020617);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.48);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.story-card h3 {
+  margin: 0 0 0.4rem 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #9ca3af;
+}
+
+.story-card p {
+  margin: 0;
+}
+
+/* 小屏幕时改成一列，避免太挤 */
+@media (max-width: 900px) {
+  .story-strip {
+    grid-template-columns: 1fr;
+  }
+}
